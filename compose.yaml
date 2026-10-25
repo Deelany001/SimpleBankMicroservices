@@ -1,0 +1,39 @@
+services:
+  accountservice:
+    build:
+      context: .
+      dockerfile: AccountService/Dockerfile
+    ports:
+      - "5001:8080"
+    environment:
+      DB_PATH: /data/accounts.db
+    volumes:
+      - account-data:/data
+    restart: unless-stopped
+  historyservice:
+    build:
+      context: .
+      dockerfile: HistoryService/Dockerfile
+    ports:
+      - "5003:8080"
+    environment:
+      DB_PATH: /data/history.db
+    volumes:
+      - history-data:/data
+    restart: unless-stopped
+  transactionservice:
+    build:
+      context: .
+      dockerfile: TransactionService/Dockerfile
+    ports:
+      - "5002:8080"
+    environment:
+      ACCOUNT_SERVICE_URL: http://accountservice:8080
+      HISTORY_SERVICE_URL: http://historyservice:8080
+    depends_on:
+      - accountservice
+      - historyservice
+    restart: unless-stopped
+volumes:
+  account-data:
+  history-data:
